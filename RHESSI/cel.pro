@@ -1,4 +1,20 @@
-; cel = compare eventlists
+; Procedure: cel (Compare EventLists)
+;
+; Purpose:
+; This is probably not code you want to use directly, but rather code you want to emulate
+; when you want to compare, say Gjesteland TGF eventlists to UCSC TGF eventlists. 
+;
+; Inputs: 
+;  Two eventlists. 
+; 
+; Output: 
+;  Find events that are in one but not in the other. Then you can WWLLN-storm match them
+;  if you like to create Gjesteland-not-UCSC storm. 
+;
+; Author:
+; Alex Infanger (UC Santa Cruz)
+; For more info contact ainfange@ucsc.edu
+
 
 pro cel, eventlist1, eventlist2
 
