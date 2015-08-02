@@ -12,8 +12,9 @@
 ;; universal time standard, 01-Jan-1979 and an interval flag. 
 ;;
 ;; Inputs:
-;; numdays: the number of days of RHESSI data you want to look at.
-;; chance number: a random integer to let randomu start its random
+;; numintervals: the number of intervals of RHESSI data you want to look at.
+;; dt: the amount of time you want to get per interval
+;; chance: a random integer to let randomu start its randomness.
 ;; number generation sequence. 
 ;; 
 ;; Options:
@@ -41,9 +42,11 @@
 ;;
 ;; Updates:
 ;; Original Release:  07/08/2015 Alexander Infanger
+;; Account for RHESSI binary microsecond sensitivity: 07/31/2015 Alexander Infanger
+;; Changed it so you can choose your number of intervals and the time, dt Alexander Infanger
 ;;
 
-function randomrhessidata, numhours, chance, rearsonly=rearsonly
+function randomrhessidata, numintervals, dt, chance, rearsonly=rearsonly
 
 ;; Get the data and check the keyword to see if the user wants
 ;; only to use rear segments. 
@@ -64,7 +67,7 @@ function randomrhessidata, numhours, chance, rearsonly=rearsonly
 ;; Create random numbers in order to decide random time
 ;; intervals. Sort the numbers and ensure they are unique. 
 
-  randomnumbers=randomu(chance,5+(numhours-1)*6,/double)
+  randomnumbers=randomu(chance,numintervals-1,/double)
   rrandomnumbers = randomnumbers(uniq(randomnumbers,sort(randomnumbers)))
 
 ;; Create the random dates.  
@@ -75,7 +78,7 @@ function randomrhessidata, numhours, chance, rearsonly=rearsonly
 ;; Check to see if two of the ten minute intervals intersect. If so,
 ;; ask the user to try another chance number. 
 
-  dist = where(abs(randomdates(i)-randomdates(i-1)) le 600.d,nd)   
+  dist = where(abs(randomdates(i)-randomdates(i-1)) le dt,nd)   
   IF nd GT 1 THEN BEGIN
      print, 'An unlikely event has occured. Please try another chance number.'
      stop
@@ -85,9 +88,12 @@ function randomrhessidata, numhours, chance, rearsonly=rearsonly
 ;; Initialize RHESSI object and fetch data from intialtime. 
 
   o = hsi_eventlist()
-  d=o->getdata(obs_time_interval = initialtime+[0.d,600.d],$
+  d=o->getdata(obs_time_interval = initialtime+[0.d,dt],$
                a2d_index_mask=seg,time_range=[0,0])
-  
+ 
+;; Account for the binary microsecond sensitivity of the detector. 
+  d=d[uniq(d.time/4)]
+ 
 ;; The get method will allow us to use the time reference ut_ref of
 ;; the beginning of our data time. Note that d.times are binary
 ;; seconds that starts at zero, and so I need to create a new struct
@@ -117,9 +123,9 @@ function randomrhessidata, numhours, chance, rearsonly=rearsonly
 ;; Go through the number of hours and conctaneate our structs to
 ;; achieve larger and larger data samples. 
 
-  FOR i=0,4+(numhours-1)*6 DO BEGIN
+  FOR i=0,numintervals-2 DO BEGIN
      nodata = 0 
-     l = o->getdata(obs_time_interval = randomdates[i]+[0.d,600.d],$
+     l = o->getdata(obs_time_interval = randomdates[i]+[0.d,dt],$
                     a2d_index_mask=seg,time_range=[0,0])
    
 ;; Check several ways to see if we got no data, then check for bad data
@@ -141,6 +147,7 @@ function randomrhessidata, numhours, chance, rearsonly=rearsonly
 
      IF nodata EQ 0 then begin
         s=o->get()
+        l = l[uniq(l.time/4)]
         B = Replicate(struct,n_elements(l))
         Struct_Assign,l,B
         B.realtime = s.ut_ref+l.time/(1024.d)^2
@@ -158,6 +165,8 @@ function randomrhessidata, numhours, chance, rearsonly=rearsonly
 
 
   ENDFOR
+  HEAP_FREE, o
+
   RETURN, A
 END
 
