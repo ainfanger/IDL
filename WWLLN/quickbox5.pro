@@ -1,7 +1,7 @@
 ; Procedure: quickbox5 
 ;
 ; Purpose:
-;   This program will find the correct WWLLNN data file on thunder based on a given time, 
+;   This program will find the correct WWLLN data file on thunder based on a given time, 
 ;   and then plot it on a map. 
 ;
 ; Inputs: 
@@ -121,7 +121,7 @@ for i=0,3 do begin
        thk = 3    
        oplot,[lon],[lat],psym=4,thick=thk,color=typecolors[i],symsize=typesizes[i]
 
-; Get the time difference for the closest WLLNN strike.
+; Get the time difference for the closest WWLLN strike.
 ; Save its time and distance. 
        if d lt mind then begin
             mind=d
@@ -131,7 +131,7 @@ for i=0,3 do begin
             minddt=abs(dt)
        endif
 
-; Get the closest WWLLNN strike that is within time dsecf. 
+; Get the closest WWLLN strike that is within time dsecf. 
 ; Save its time and distance. 
        if d lt mindf and abs(dt) lt dsecf then begin
             mindf=d
