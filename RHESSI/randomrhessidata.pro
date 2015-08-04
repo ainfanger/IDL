@@ -92,7 +92,7 @@ function randomrhessidata, numintervals, dt, chance, rearsonly=rearsonly
                a2d_index_mask=seg,time_range=[0,0])
  
 ;; Account for the binary microsecond sensitivity of the detector. 
-  d=d[uniq(d.time/4)]
+  d=d[uniq(d.time/4,sort(d.time/4))]
  
 ;; The get method will allow us to use the time reference ut_ref of
 ;; the beginning of our data time. Note that d.times are binary
@@ -147,7 +147,7 @@ function randomrhessidata, numintervals, dt, chance, rearsonly=rearsonly
 
      IF nodata EQ 0 then begin
         s=o->get()
-        l = l[uniq(l.time/4)]
+        l = l[uniq(l.time/4,sort(l.time/4))]
         B = Replicate(struct,n_elements(l))
         Struct_Assign,l,B
         B.realtime = s.ut_ref+l.time/(1024.d)^2

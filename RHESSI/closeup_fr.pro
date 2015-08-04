@@ -41,6 +41,10 @@ pro closeup_fr, date,dt,shift=shift, title=title, postscript=postscript, filenam
   seg=intarr(27)+1        	 
   d=o->getdata(obs_time_interval=anytim(date)+[-1.,1.],$
   a2d_index_mask=seg,time_range=[0,0])
+
+;Only look at unique counts
+  d=d[uniq(d.time/4,sort(d.time/4))]
+
   s=o->get()
   ttrig = anytim(date)
   t0 = anytim(strmid(date,0,19))
