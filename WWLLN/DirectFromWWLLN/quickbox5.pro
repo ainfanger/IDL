@@ -5,13 +5,15 @@
 ;   and then plot it on a map. 
 ;
 ; Inputs: 
-;   date: the date you are interested in. 
+;   date: the date you are interested in, format: '2004-08-20 18:07:13.341'
 ;   pfname: the name of the postscript file it will write. 
 ;   latc: the latitude of the center point.  
 ;   lonc: the longitude of the center point. 
-;   dsec: _______
-;   dsecf: _______
-;   rad: the radius from the center to plot in kilometers. 
+;   dsec: The time difference allowed for all events plotted (longer than dsecf).
+;   dsecf: The time difference allowed for finding the closest event within dsecf 
+;   (shorter than dsec); to clarify, you might want to know the closest event within 
+;   1 s (dsecf), but still plot all events with in 10 s (dsec).
+;   rad: the radius from the center to plot in kilometers.  
 
 ; Output: 
 ;  A postscript file of the map. It will also open the map for you. 
@@ -105,7 +107,7 @@ for i=0,3 do begin
        lon=1.*strmid(s,37,9)
        if lon lt 0. then lon+=360.
 
-; Only read the lines thar are within r of our center location. 
+; Only read the lines thar are within rad of our center location. 
 ; Haversine formula from http://andrew.hedges.name/experiments/haversine/
        dlon = (lon-lonc)*!pi/180.
        dlat = (lat-latc)*!pi/180.
